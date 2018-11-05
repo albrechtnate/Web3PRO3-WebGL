@@ -1,9 +1,9 @@
-# Web3PRO3 WebGL/ThreeJs
+# Web 3 - Project 3 (Experimental) - WebGL/Three.js
 
 ## Research and Learning Resources
 A mix of blog posts and other reading material, interactive tutorials, videos, courses, docs, and examples both solely WebGL and on using the Three.js framework.
 
-## Resources for learning WebGL
+### Resources for learning WebGL
 - https://developer.mozilla.org/en-US/docs/Learn/WebGL
 - https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Getting_started_with_WebGL
 - https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API
@@ -21,7 +21,7 @@ A mix of blog posts and other reading material, interactive tutorials, videos, c
 - https://get.webgl.org/get-a-webgl-implementation/
 - https://en.wikipedia.org/wiki/WebGL
 
-## Three.js
+### Three.js
 - https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene
 - https://threejs.org/editor/
 - https://gamedevelopment.tutsplus.com/tutorials/search/webgl
