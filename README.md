@@ -21,7 +21,7 @@ A mix of blog posts and other reading material, interactive tutorials, videos, c
 - https://get.webgl.org/get-a-webgl-implementation/
 - https://en.wikipedia.org/wiki/WebGL
 
-### Three.js
+### Resources for learning Three.js
 - https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene
 - https://threejs.org/editor/
 - https://gamedevelopment.tutsplus.com/tutorials/search/webgl
