@@ -16,10 +16,10 @@ A mix of blog posts and other reading material, interactive tutorials, videos, c
 - http://www.webglacademy.com/
 - https://aerotwist.com/tutorials/an-introduction-to-shaders-part-1/
 - https://www.youtube.com/watch?v=kB0ZVUrI4Aw
-- https://www.youtube.com/watch?v=XNbtwyWh9HA
+- ~~https://www.youtube.com/watch?v=XNbtwyWh9HA~~
 - http://webglsamples.org/
 - https://get.webgl.org/get-a-webgl-implementation/
-- https://en.wikipedia.org/wiki/WebGL
+- ~~https://en.wikipedia.org/wiki/WebGL~~
 
 ### Resources for learning Three.js
 - https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene
