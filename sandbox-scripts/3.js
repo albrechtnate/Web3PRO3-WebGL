@@ -24,6 +24,10 @@ if (!gl) {
 // Clear the canvas with a new background color
 gl.clearColor(0.75, 0.85, 0.8, 1.0);
 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+// Flags that make the GPU:
+// 1. Render only the formost pixels (DEPTH TEST)
+// 2. Skip calculations for pixels that won’t be seen (CULL)
 gl.enable(gl.DEPTH_TEST);
 gl.enable(gl.CULL_FACE);
 gl.frontFace(gl.CCW);
@@ -92,47 +96,46 @@ if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)) {
 }
 // End Program
 
-// Create Buffer
-
-// List of X, Y, Z coordinates    R, G, B
+// List of X, Y, Z coordinates and R, G, B for each corner point
 var boxVertices = [
 	// Top
-	-1.00,  1.00, -1.00,	 0.50,  0.50,  0.50,
-	-1.00,  1.00,  1.00,	 0.50,  0.50,  0.50,
-	 1.00,  1.00,  1.00,	 0.50,  0.50,  0.50,
-	 1.00,  1.00, -1.00,	 0.50,  0.50,  0.50,
+	-1.00,  1.00, -1.00,	 1.00,  0.00,  0.00,
+	-1.00,  1.00,  1.00,	 1.00,  0.00,  0.00,
+	 1.00,  1.00,  1.00,	 1.00,  0.00,  0.00,
+	 1.00,  1.00, -1.00,	 1.00,  0.00,  0.00,
 
 	// Left
-	-1.00,  1.00,  1.00,	 0.75,  0.25,  0.50,
-	-1.00, -1.00,  1.00,	 0.75,  0.25,  0.50,
-	-1.00, -1.00, -1.00,	 0.75,  0.25,  0.50,
-	-1.00,  1.00, -1.00,	 0.75,  0.25,  0.50,
+	-1.00,  1.00,  1.00,	 0.00,  1.00,  0.00,
+	-1.00, -1.00,  1.00,	 0.00,  1.00,  0.00,
+	-1.00, -1.00, -1.00,	 0.00,  1.00,  0.00,
+	-1.00,  1.00, -1.00,	 0.00,  1.00,  0.00,
 
 	// Right
-	 1.00,  1.00,  1.00,	 0.25,  0.25,  0.75,
-	 1.00, -1.00,  1.00,	 0.25,  0.25,  0.75,
-	 1.00, -1.00, -1.00,	 0.25,  0.25,  0.75,
-	 1.00,  1.00, -1.00,	 0.25,  0.25,  0.75,
+	 1.00,  1.00,  1.00,	 0.00,  0.00,  1.00,
+	 1.00, -1.00,  1.00,	 0.00,  0.00,  1.00,
+	 1.00, -1.00, -1.00,	 0.00,  0.00,  1.00,
+	 1.00,  1.00, -1.00,	 0.00,  0.00,  1.00,
 
 	 // Front
-	 1.00,  1.00,  1.00,	 1.00,  0.00,  0.15,
-	 1.00, -1.00,  1.00,	 1.00,  0.00,  0.15,
-	-1.00, -1.00,  1.00,	 1.00,  0.00,  0.15,
-	-1.00,  1.00,  1.00,	 1.00,  0.00,  0.15,
+	 1.00,  1.00,  1.00,	 1.00,  1.00,  0.00,
+	 1.00, -1.00,  1.00,	 1.00,  1.00,  0.00,
+	-1.00, -1.00,  1.00,	 1.00,  1.00,  0.00,
+	-1.00,  1.00,  1.00,	 1.00,  1.00,  0.00,
 
 	// Back
-	 1.00,  1.00, -1.00,	 0.00,  1.00,  0.15,
-	 1.00, -1.00, -1.00,	 0.00,  1.00,  0.15,
-	-1.00, -1.00, -1.00,	 0.00,  1.00,  0.15,
-	-1.00,  1.00, -1.00,	 0.00,  1.00,  0.15,
+	 1.00,  1.00, -1.00,	 0.00,  1.00,  1.00,
+	 1.00, -1.00, -1.00,	 0.00,  1.00,  1.00,
+	-1.00, -1.00, -1.00,	 0.00,  1.00,  1.00,
+	-1.00,  1.00, -1.00,	 0.00,  1.00,  1.00,
 
 	// Back
-	-1.00, -1.00, -1.00,	 0.50,  0.50,  1.00,
-	-1.00, -1.00,  1.00,	 0.50,  0.50,  1.00,
-	 1.00, -1.00,  1.00,	 0.50,  0.50,  1.00,
-	 1.00, -1.00, -1.00,	 0.50,  0.50,  1.00,
+	-1.00, -1.00, -1.00,	 1.00,  0.00,  1.00,
+	-1.00, -1.00,  1.00,	 1.00,  0.00,  1.00,
+	 1.00, -1.00,  1.00,	 1.00,  0.00,  1.00,
+	 1.00, -1.00, -1.00,	 1.00,  0.00,  1.00,
 ];
 
+// Creates triangles by referring to the aforementioned vertices
 var boxIndices = [
 	// Top
 	0, 1, 2,
@@ -158,6 +161,8 @@ var boxIndices = [
 	21, 20, 22,
 	22, 20, 23
 ];
+
+// Create Buffer
 
 // Sending the coordinate data from the CPU memory to the GPU memory
 var boxVertexBufferObject = gl.createBuffer();
@@ -193,31 +198,38 @@ gl.enableVertexAttribArray(colorAttribLocation);
 
 gl.useProgram(program);
 
+// “Finds” existing variables created in the GLSL code
 var matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');
 var matViewUniformLocation = gl.getUniformLocation(program, 'mView');
 var matProjUniformLocation = gl.getUniformLocation(program, 'mProj');
 
+// Creates 3 “empty” matrices to handle the world, the camera, and how the camera converts the 3D points into 2D space
 var worldMatrix = new Float32Array(16);
 var viewMatrix = new Float32Array(16);
 var projMatrix = new Float32Array(16);
+
+// Uses a library (glMatrix) to set each matrix to something meaningful. Does math.
 mat4.identity(worldMatrix);
 mat4.lookAt(viewMatrix, [0, 0, -8], [0, 0, 0], [0, 1, 0]);
 mat4.perspective(projMatrix, glMatrix.toRadian(45), canvas.width/canvas.height, 0.1, 1000.0);
 
+// Sends the matrix data from the CPU to the GPU
 gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
 gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
 gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
 
+// Creates 2 new matrices for the rotation
 var xRotationMatrix = new Float32Array(16);
 var yRotationMatrix = new Float32Array(16);
 
 // Main Render Loop
+// Creates a new empty matrix for use in the rotate method
 var identityMatrix = new Float32Array(16);
 mat4.identity(identityMatrix);
 var angle;
 var loop = function () {
-	angle = performance.now() / 1000 / 6 * 2 * Math.PI;
-	mat4.rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
+	angle = performance.now() / 1000 / 6 * 2 * Math.PI; // 1 full rotation every 6 seconds
+	mat4.rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]); // The output matrix, the input matrix, the angle of rotation, which axis to do the rotation around
 	mat4.rotate(xRotationMatrix, identityMatrix, angle / 4, [1, 0, 0]);
 	mat4.mul(worldMatrix, yRotationMatrix, xRotationMatrix);
 	gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
