@@ -283,7 +283,7 @@ gl.enableVertexAttribArray(normalAttribLocation);
 
 // Get texture and send to GPU
 var image = new Image();
-image.src = 'crate.png';
+image.src = 'https://albrechtnate.github.io/Web3PRO3-WebGL/Crate.png';
 
 var boxTexture = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, boxTexture);
