@@ -181,3 +181,13 @@ if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)) {
 	console.error('ERROR validating program', gl.getProgramInfolog(program));
 }
 ```
+
+## Using the program and creating the rendering loop
+Now that we have our program, lets tell WebGL to use it. You do that by calling `gl.useProgram(program);`.
+We should also set up the loop that will make our canvas be redrawn on every frame. We do this performantly by calling `requestAnimationFrame()`. This function is empty now, but eventually we will do math and make our draw calls here.
+```javascript
+	var animate = function() {
+		requestAnimationFrame(animate);
+	}
+	animate();
+```
