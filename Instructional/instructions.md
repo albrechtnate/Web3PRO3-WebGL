@@ -55,7 +55,7 @@ Here are several video tutorials, websites, blog posts, and docs that will help 
 
 Let’s jump in and learn by interacting with some code.
 
-In this guide I will walk you through creating an untextured 3D box lit with a single directional light.
+In this guide I will walk you through creating a rotating white 3D box.
 
 ### Creating your Files and WebGL Prep
 
@@ -194,3 +194,188 @@ We should also set up the loop that will make our canvas be redrawn on every fra
 	}
 	animate();
 ```
+
+## Adding our vertice data
+We have most of our boilerplate code in place now, so let’s actually create our cube now. The WebGL coordinate system has goes from -1 to 1 on each axis (Top = 1, Bottom = -1, Left= -1, Right = 1, Forwards = 1, Backwards = -1). We’ll use this system to define the corner vertices of our cube. To do this we have to create a matrice of vertice points—essentially an array that has "columns" and "rows". The concept of a matrix and its use can get very mathematical very quickly and is beyond the scope of this tutorial, but if you’re interested in learning more read the [Matrix Wikipedia page](https://en.wikipedia.org/wiki/Matrix_(mathematics)) for more information.
+
+Feel free to copy and paste the following array of points. Each point of each plane of the box is defined on a new line/row. This means that we are defining the same corner point three times for each plane. We could probably optimize this, but I’ll save that challenge for you :)
+
+The columns of our matrix are: X Coordinate, Y Coordinate, Z Coordinate, U Coordinate, V Coordinate
+There are multiple ways to color the box, but in this case we will use those U and V points to do so. No need to understand the details of how this works now, but checkout the [UV Mapping Wikipedia page](https://en.wikipedia.org/wiki/UV_mapping) if interested.
+Place this code right after you create and validate the program. (Before using the program)
+```javascript
+// List of X, Y, Z coordinates (model vertices) and U, V (used for texturing) for each corner point
+var boxVertices = [
+	// Top
+	-1.00,  1.00, -1.00,	 0.00,  0.00,
+	-1.00,  1.00,  1.00,	 0.00,  1.00,
+	 1.00,  1.00,  1.00,	 1.00,  1.00,
+	 1.00,  1.00, -1.00,	 1.00,  0.00,
+
+	// Left
+	-1.00,  1.00,  1.00,	 0.00,  0.00,
+	-1.00, -1.00,  1.00,	 1.00,  0.00,
+	-1.00, -1.00, -1.00,	 1.00,  1.00,
+	-1.00,  1.00, -1.00,	 0.00,  1.00,
+
+	// Right
+	 1.00,  1.00,  1.00,	 1.00,  1.00,
+	 1.00, -1.00,  1.00,	 0.00,  1.00,
+	 1.00, -1.00, -1.00,	 0.00,  0.00,
+	 1.00,  1.00, -1.00,	 1.00,  0.00,
+
+	 // Front
+	 1.00,  1.00,  1.00,	 1.00,  1.00,
+	 1.00, -1.00,  1.00,	 1.00,  0.00,
+	-1.00, -1.00,  1.00,	 0.00,  0.00,
+	-1.00,  1.00,  1.00,	 0.00,  1.00,
+
+	// Back
+	 1.00,  1.00, -1.00,	 0.00,  0.00,
+	 1.00, -1.00, -1.00,	 0.00,  1.00,
+	-1.00, -1.00, -1.00,	 1.00,  1.00,
+	-1.00,  1.00, -1.00,	 1.00,  0.00,
+
+	// Bottom
+	-1.00, -1.00, -1.00,	 1.00,  1.00,
+	-1.00, -1.00,  1.00,	 1.00,  0.00,
+	 1.00, -1.00,  1.00,	 0.00,  0.00,
+	 1.00, -1.00, -1.00,	 0.00,  1.00,
+];
+```
+
+Now that we have all our vertice points we have to “connect the dots” and form our planes.
+
+Computers prefer to draw triangles rather than squares because 3 points are simpler than 4. With a triangle, all the points will always align into a single plane (called planar) whereas in squares/rectangles that is not a gurantee (called non-planar). As a result, we will “connect the dots” to form several of triangles. A square is split diagonally into two triangles, so when we render the scene the cube will look like its is made up of square planes even though it is really made up of 12 triangles.
+
+We create the triangles by creating an indice array, somewhat similar to our matrix, each row of our indice defines a triangle. The numbers in the indice array refer to the rows in the vertice matrix.
+
+Place this right after the vertice matrix.
+
+```javascript
+// Creates triangles by referring to the aforementioned vertices
+var boxIndices = [
+	// Top
+	0, 1, 2,
+	0, 2, 3,
+
+	// Left
+	5, 4, 6,
+	6, 4, 7,
+
+	// Right
+	8, 9, 10,
+	8, 10, 11,
+
+	// Front
+	13, 12, 14,
+	15, 14, 12,
+
+	// Back
+	16, 17, 18,
+	16, 18, 19,
+
+	// Bottom
+	21, 20, 22,
+	22, 20, 23
+];
+```
+
+## Creating our Shaders
+Great! We now have the data that makes up our points. Now we need to tell our shaders what to do with that data.
+Inside our vertex shader place this GLSL code:
+```GLSL
+precision mediump float;  // We tell the program how precisely we want to handle decimal numbers
+
+attribute vec3 vertPosition;  // We’re going to input the XYZ vertice coordinates we defined for each point. Here we define a name for that data. Because there are 3 numbers (XYZ), we define it as a vec3, or three-dimensional vector.
+attribute vec2 vertTexCoord;  // We do the same thing for the UV coordinates. An attribute is essentially a variable that is updated for each vertex.
+
+varying vec2 fragTextCoord;  // A “varying” defines data we want to send to the fragment shader. Here we are defining a variable for our texture coordinate and defining its type as a 2 dimensional vector.
+
+uniform mat4 mWorld; // Uniforms are like global variables that stay the same for the entire draw call.
+uniform mat4 mView;  // We define these variables as a 4x4 matrix
+uniform mat4 mProj;  // These matrices will allow us to do perspective, and move the “camera” and the “world”
+
+void main() { // This is the required function in a shader
+	fragTextCoord = vertTexCoord; // Just passing the texture coordinates on to the fragment shader
+
+	gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
+}
+```
+
+Inside our fragment shader place this GLSL code:
+```GLSL
+precision mediump float;
+
+varying vec2 fragTextCoord; // The input from the vertex shader
+
+uniform sampler2D sampler;  // The sampler allows us to take samples from our 2D texture and apply them to a 3D object
+
+void main() {
+	vec4 texel = texture2D(sampler, fragTextCoord);
+
+	gl_FragColor = vec4(texel);
+}
+```
+
+## Sending Data from the CPU to the GPU Shaders
+
+We have our compiled shaders and we have our data, now we need to send the data that is currently in RAM running on the CPU to the GPU. To do so we create buffers from our data arrays.
+
+The following code should go after our data (the indices array):
+First we create a buffer by calling `gl.createBuffer();`, then we tell WebGL that we want to bind some data to the buffer by calling `gl.bindBuffer()` and passing in the type and buffer object we created. Finally we actually bind the array of vertice data to the buffer by calling `gl.bufferData()` and passing in again the type, the array of data (formatted as a Float32Array) and tell WebGL we aren't going to update the data—that it is static.
+
+Altogether this looks like:
+```javascript
+var boxVertexBufferObject = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, boxVertexBufferObject);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(boxVertices), gl.STATIC_DRAW);
+```
+
+Do the same for the indices data:
+```javascript
+var boxIndexBufferObject = gl.createBuffer();
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boxIndexBufferObject);
+gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(boxIndices), gl.STATIC_DRAW);
+```
+
+Now that we have our buffers we need to link them to the variables in the GLSL code and tell the script how to handle the data. We do that by binding the buffer again. WebGL is a state machine, which means that the last buffer we’ve bound is the “active one” that we are performing other operations on (e.g. `bufferData()`).
+
+```javascript
+gl.bindBuffer(gl.ARRAY_BUFFER, boxVertexBufferObject);
+```
+
+Now we have to link the variable in the GLSL (called an attribute) to a javscript variable.
+```javascript
+var positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
+```
+
+Finally we have to create an attribute pointer (determine which "columns" in our matrix should be sent to this attribute and describe the type of data being sent).
+```javascript
+gl.vertexAttribPointer(
+	positionAttribLocation, // Attribute location
+	3, // Number of elements per attribute (Which columns are we sending)
+	gl.FLOAT, // Type of elements
+	gl.FALSE, // Is the data normalized?
+	5 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex (How many total “columns”)
+	0 // Offset from the beginning of a single vertex to this attribute
+);
+```
+
+Then we enable the vertex attribute array: `gl.enableVertexAttribArray(positionAttribLocation);`
+
+Do the same thing for the UV texture coordinates. Note that the size of an individual vertex stays the same, but the number of elements per attribute and offset differ.
+
+```javascript
+var texCoordAttribLocation = gl.getAttribLocation(program, 'vertTexCoord');
+gl.vertexAttribPointer(
+	texCoordAttribLocation, // Attribute location
+	2, // Number of elements per attribute,
+	gl.FLOAT, // Type of elements
+	gl.FALSE, // Is the data normalized?
+	5 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+	3 * Float32Array.BYTES_PER_ELEMENT // Offset from the beginning of a single vertex to this attribute
+);
+gl.enableVertexAttribArray(texCoordAttribLocation);
+```
+
