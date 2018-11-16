@@ -96,3 +96,65 @@ canvas.width = (window.innerWidth*0.8)*2; // I multiply the canvas size by 2 and
 canvas.height = (window.innerHeight*0.8)*2;
 document.body.appendChild(canvas);
 ```
+
+### Initialize WebGL
+
+Now that we have our files and our canvas element we are finally ready to start using the WebGL API. Lets’s initialize it.
+
+```javacript
+var gl = canvas.getContext('webgl');
+```
+
+All modern browsers support WebGL but some older ones do not, and others (like Edge) require you to use a different context name: “experimental-webgl”. Let’s add the fallback code now.
+
+```javascript
+if (!gl) {
+	console.log('WebGL not supported, falling back on experimental-webgl');
+	gl = canvas.getContext('experimental-webgl');
+}
+
+if (!gl) {
+	alert('Your browser does not support WebGl');
+}
+```
+
+### Shader Boiler Plate
+
+Let’s create the boiler plate code for our shaders now. We’ll circle back around to add in the actual GLSL code in a bit.
+
+### Vertex Shader
+All shaders are created by calling the `.createShader()` method on our WebGL canvas context and specifying in the type.
+```javascript
+var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+```
+Now we need to create the main part of the shader, the shader source. This is where the GLSL code will go. We will keep the actual source blank for now.
+```javascript
+gl.shaderSource(vertexShader, `
+	// GLSL Code will go here
+`);
+```
+Finally we need to call the `.compileShader()` method that actually converts are GLSL code into binary data that will run on the GPU. We should also catch any compiling errors and log them to the console for easier debugging.
+```javascript
+gl.compileShader(vertexShader);
+
+if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+	console.error('ERROR compiling vertex shader!', gl.getShaderInfoLog(vertexShader));
+	return;
+}
+```
+
+### Fragment Shader
+
+The fragment shader is created in the exact same manner as the vertex shader. We’ll give it different variable names and pass in the fragment shader type when creating it.
+```javascript
+var framentShader = gl.createShader(gl.FRAGMENT_SHADER);
+gl.shaderSource(framentShader, `
+	// GLSL Code will go here
+`);
+gl.compileShader(framentShader);
+
+if (!gl.getShaderParameter(framentShader, gl.COMPILE_STATUS)) {
+	console.error('ERROR compiling vertex shader!', gl.getShaderInfoLog(framentShader));
+	return;
+}
+```
