@@ -56,3 +56,43 @@ Here are several video tutorials, websites, blog posts, and docs that will help 
 Let’s jump in and learn by interacting with some code.
 
 In this guide I will walk you through creating an untextured 3D box lit with a single directional light.
+
+### Creating your Files and WebGL Prep
+
+Start by creating a barebones HTML file and blank Javascript file. Link the Javascript file from the HTML. You can copy my HTML file which includes some optional styling.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>WebGL Sandbox</title>
+	<style>
+		body {
+			margin:0;
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background-color: rgb(25,25,25);
+		}
+		canvas {
+			width: 80%;
+			height: 80vh;
+		}
+	</style>
+</head>
+<body>
+	<script src="script.js"></script>
+</body>
+</html>
+```
+
+All drawing operations are done on a HTML canvas element, so we have to create that. Create this using Javascript, set the dimensions, and add it to the page. For my size, I’m creating the canvas element to be twice as large as it will actually be displayed (80% of the viewport), and then shrinking it using CSS so it appears nice and sharp on retina displays.
+
+```javascript
+var canvas = document.createElement('canvas');
+canvas.width = (window.innerWidth*0.8)*2; // I multiply the canvas size by 2 and scale it down with CSS to effectively create a @2x graphic for my retina display
+canvas.height = (window.innerHeight*0.8)*2;
+document.body.appendChild(canvas);
+```
