@@ -101,7 +101,7 @@ document.body.appendChild(canvas);
 
 Now that we have our files and our canvas element we are finally ready to start using the WebGL API. Lets’s initialize it.
 
-```javacript
+```javascript
 var gl = canvas.getContext('webgl');
 ```
 
@@ -118,9 +118,9 @@ if (!gl) {
 }
 ```
 
-### Shader Boiler Plate
+### Shader Boilerplate Code
 
-Let’s create the boiler plate code for our shaders now. We’ll circle back around to add in the actual GLSL code in a bit.
+Let’s create the boilerplate code for our shaders now. We’ll circle back around to add in the actual GLSL code in a bit.
 
 ### Vertex Shader
 All shaders are created by calling the `.createShader()` method on our WebGL canvas context and specifying in the type.
@@ -156,5 +156,28 @@ gl.compileShader(framentShader);
 if (!gl.getShaderParameter(framentShader, gl.COMPILE_STATUS)) {
 	console.error('ERROR compiling vertex shader!', gl.getShaderInfoLog(framentShader));
 	return;
+}
+```
+
+## Creating the program and linking the shaders
+
+Now that we have our shaders we need to link them together into a program so we can actually use them. You do that like this:
+```javascript
+var program = gl.createProgram();
+gl.attachShader(program, vertexShader);
+gl.attachShader(program, framentShader);
+gl.linkProgram(program);
+```
+
+Let’s also add some code here to throw errors if there were issues linking the shaders or validating the program. The check to validate the program can be harmful to performance, so it should only be run in you testing enviorment.
+```javascript
+if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+	console.error('ERROR linking program', gl.getProgramInfolog(program));
+}
+
+// DEBUG ENV ONLY - Validates the program and outputs any errors to the console
+gl.validateProgram(program);
+if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)) {
+	console.error('ERROR validating program', gl.getProgramInfolog(program));
 }
 ```
