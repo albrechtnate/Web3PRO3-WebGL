@@ -394,7 +394,7 @@ var matProjUniformLocation = gl.getUniformLocation(program, 'mProj');
 
 We’re going to use a third party library to create and perform the math operations on our matrices. Actually knowng what mathematical formulas are used to perform operations on matrices and how they do so isn’t neccessary. Just know that this is a low-level, fairly basic “helper script” to do a lot of the math for us.
 
-Go ahead and [download the script (gl-matrix.js)](http://glmatrix.net/) and link to it before our own script in the HTML.
+Go ahead and [download the script (gl-matrix.js)](https://raw.githubusercontent.com/albrechtnate/Web3PRO3-WebGL/master/gl-matrix.js) and link to it before our own script in the HTML.
 
 Now we call a number of methods on the mat4 object to do operations for us… such as creating empty 4x4 matrices.
 ```javascript
